@@ -1,7 +1,6 @@
 const API = "https://api.github.com/";
 const USER = "users/";
 const EVENT = "events";
-const PUSH_EVENT = "PUSHEVENT";
 let currentUser;
 let events_list = [];
 let timeData = [
@@ -30,3 +29,8 @@ let timeData = [
     [22, 0],
     [23, 0]
 ];
+
+const PUSH_EVENT = "PushEvent";
+let pushEventNumber = 0;
+let pushEventPercentage = 0.0;
+let averageEventTimeHour = 0;

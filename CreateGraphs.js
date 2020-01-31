@@ -7,7 +7,7 @@ function getUser() {
         url: API + USER + username,
         dataType: 'jsonp',
         success: function getProfile(data) {
-            currentUser = data;
+            currentUser = data.data;
             console.log(data);
             getEvents(currentUser);
         },
@@ -16,10 +16,10 @@ function getUser() {
 }
 
 function getEvents(user) {
-    console.log(user.data.url + "/" + EVENT)
+    console.log(user.url + "/" + EVENT)
     $.ajax({
         type: 'GET',
-        url: user.data.url + "/" + EVENT + "?per_page=100",
+        url: user.url + "/" + EVENT + "?per_page=100",
         dataType: 'jsonp',
         success: function(data) {
             events_list = data.data.slice();
@@ -33,14 +33,25 @@ function calculateEventsPercentage(events) {
     console.log(events_list);
 
     events_list.forEach(element => {
-        console.log(element);
         var date = new Date(element.created_at);
-        console.log(date)
-        console.log(date.getHours())
+        if (element.type == PUSH_EVENT) {
+            ++pushEventNumber;
+        }
         timeData[date.getHours()][1]++;
     });
 
+    pushEventPercentage = pushEventNumber / events_list.length;
+    displayStats();
     drawCharts();
+}
+
+function displayStats() {
+    var userDetails = "<div class=\"card\"> <img class=\"card-img-top\" src=\"" +
+        currentUser.avatar_url + "\" alt=\"User profile image\"><div class=\"class-body\"><h2>Name: " + ((currentUser.name === null) ? currentUser.name : currentUser.login) +
+        "<br>Followers: " + currentUser.followers + "<br>Following: " + currentUser.following +
+        "<br>Number of Public Repos: " + currentUser.public_repos +
+        "<br>Create At: " + currentUser.created_at + "</h2></div>";
+    document.getElementById("userDetails").insertAdjacentHTML('beforeend', userDetails);
 }
 
 function drawCharts() {
@@ -54,7 +65,11 @@ function drawCharts() {
     // instantiates the pie chart, passes in the data and
     // draws it.
     function drawChart() {
+        drawCommitTimeBarChart();
+        drawPushEventPieChart();
+    }
 
+    function drawCommitTimeBarChart() {
         // Create the data table.
         var data = new google.visualization.DataTable();
         data.addColumn('number', 'Hour');
@@ -64,12 +79,35 @@ function drawCharts() {
         // Set chart options
         var options = {
             'title': 'Frequency of Events',
-            'width': 400,
-            'height': 300
+            'width': $('barDiv').width,
+            'height': $('barDiv').height,
+            bar: { groupWidth: "95%" },
+            legend: { position: "none" }
         };
 
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.BarChart(document.getElementById('chartDiv'));
+        var chart = new google.visualization.ColumnChart(document.getElementById('barDiv'));
+        chart.draw(data, options);
+    }
+
+    function drawPushEventPieChart() {
+        // Create the data table.
+        var data = google.visualization.arrayToDataTable([
+            ['Event', 'Percentage'],
+            ['Commits', pushEventPercentage],
+            ['Other Events', 100 - pushEventPercentage]
+        ]);
+
+        // Set chart options
+        var options = {
+            title: 'Perentage of Commits',
+            'width': $('barDiv').width,
+            'height': $('barDiv').height
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('pieDiv'));
         chart.draw(data, options);
     }
 }
+s
