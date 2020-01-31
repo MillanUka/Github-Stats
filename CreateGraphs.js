@@ -110,4 +110,3 @@ function drawCharts() {
         chart.draw(data, options);
     }
 }
-s
