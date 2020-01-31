@@ -46,11 +46,12 @@ function calculateEventsPercentage(events) {
 }
 
 function displayStats() {
-    var userDetails = "<div class=\"card\"> <img class=\"card-img-top\" src=\"" +
-        currentUser.avatar_url + "\" alt=\"User profile image\"><div class=\"class-body\"><h2>Name: " + ((currentUser.name === null) ? currentUser.name : currentUser.login) +
+    var userDetails = "<div class=\"container bg-dark border\" style=\"text-align: left;\"> <h2>Name: " + ((currentUser.name === null) ? currentUser.name : currentUser.login) +
         "<br>Followers: " + currentUser.followers + "<br>Following: " + currentUser.following +
         "<br>Number of Public Repos: " + currentUser.public_repos +
-        "<br>Create At: " + currentUser.created_at + "</h2></div>";
+        "<br>Created At: " + new Date(currentUser.created_at) + "</h2>" +
+        "<a class=\"btn bg-primary text-white\" href=\"" + currentUser.html_url + "\">View on Github" + "</a></div>";
+    console.log(userDetails);
     document.getElementById("userDetails").insertAdjacentHTML('beforeend', userDetails);
 }
 
