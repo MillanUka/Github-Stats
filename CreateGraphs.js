@@ -7,8 +7,16 @@ function getUser() {
         url: API + USER + username,
         dataType: 'jsonp',
         success: function getProfile(data) {
+            if (data.data.message) {
+                console.log(data);
+                if (data.data.message === NOT_FOUND)
+                    alert("Please enter a valid username.");
+                else
+                    alert("You have  made too many calls to the Github API. Please try again in an hour");
+                return;
+            }
             currentUser = data.data;
-            console.log(data);
+
             getEvents(currentUser);
         },
         async: false
@@ -41,15 +49,20 @@ function calculateEventsPercentage(events) {
     });
 
     pushEventPercentage = pushEventNumber / events_list.length;
+    clearUser();
     displayStats();
     drawCharts();
 }
 
 function displayStats() {
-    var userDetails = "<div class=\"container bg-dark border\" style=\"text-align: left;\"> <h2>Name: " + ((currentUser.name === null) ? currentUser.name : currentUser.login) +
+    var name = currentUser.login;
+    var date = new Date(currentUser.created_at);
+    if (currentUser.name != null)
+        name = currentUser.name
+    var userDetails = "<div class=\"container bg-dark border\" style=\"text-align: left;\"> <h2>Name: " + name +
         "<br>Followers: " + currentUser.followers + "<br>Following: " + currentUser.following +
         "<br>Number of Public Repos: " + currentUser.public_repos +
-        "<br>Created At: " + new Date(currentUser.created_at) + "</h2>" +
+        "<br>Created At: " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + "</h2>" +
         "<a class=\"btn bg-primary text-white\" href=\"" + currentUser.html_url + "\">View on Github" + "</a></div>";
     console.log(userDetails);
     document.getElementById("userDetails").insertAdjacentHTML('beforeend', userDetails);
@@ -79,11 +92,20 @@ function drawCharts() {
 
         // Set chart options
         var options = {
-            'title': 'Frequency of Events',
+            title: 'Frequency of Events by Hour',
             'width': $('barDiv').width,
             'height': $('barDiv').height,
-            bar: { groupWidth: "95%" },
-            legend: { position: "none" }
+            chart: {
+                title: 'Frequency of Events by Hour'
+            },
+            axes: {
+                y: {
+                    distance: { label: 'Frequency' }
+                },
+                x: {
+                    distance: { label: 'Hour' }
+                }
+            }
         };
 
         // Instantiate and draw our chart, passing in some options.
@@ -110,4 +132,8 @@ function drawCharts() {
         var chart = new google.visualization.PieChart(document.getElementById('pieDiv'));
         chart.draw(data, options);
     }
+}
+
+function clearUser() {
+    $("#userDetails").empty();
 }

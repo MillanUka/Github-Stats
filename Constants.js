@@ -34,3 +34,5 @@ const PUSH_EVENT = "PushEvent";
 let pushEventNumber = 0;
 let pushEventPercentage = 0.0;
 let averageEventTimeHour = 0;
+
+const NOT_FOUND = "Not Found";
